@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jorge Oyola · Ask Me Anything</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f0e;
+    --surface: #161918;
+    --border: #252927;
+    --accent: #b8f5a0;
+    --accent-dim: #6dbf57;
+    --text: #e8ede9;
+    --text-muted: #7a8a7c;
+    --user-bubble: #1e2b1f;
+    --bot-bubble: #161918;
+    --radius: 16px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Header */
+  header {
+    width: 100%;
+    max-width: 720px;
+    padding: 48px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--accent-dim);
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* Suggestions */
+  .suggestions {
+    width: 100%;
+    max-width: 720px;
+    padding: 0 24px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .chip:hover {
+    border-color: var(--accent-dim);
+    color: var(--accent);
+    background: rgba(184, 245, 160, 0.04);
+  }
+
+  /* Chat area */
+  .chat-wrap {
+    width: 100%;
+    max-width: 720px;
+    flex: 1;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .messages {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 120px;
+  }
+
+  .message {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.25s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .avatar.bot {
+    background: var(--accent);
+    color: #0d0f0e;
+    font-weight: 500;
+  }
+
+  .avatar.user-av {
+    background: var(--border);
+    color: var(--text-muted);
+  }
+
+  .bubble {
+    max-width: 82%;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .message.bot .bubble {
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-top-left-radius: 4px;
+  }
+
+  .message.user .bubble {
+    background: var(--user-bubble);
+    border: 1px solid #2a3d2b;
+    color: var(--accent);
+    border-top-right-radius: 4px;
+  }
+
+  .bubble strong { color: var(--accent); font-weight: 500; }
+  .bubble ul { padding-left: 18px; margin-top: 6px; }
+  .bubble li { margin-bottom: 4px; }
+
+  /* Typing indicator */
+  .typing {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 6px 0;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    animation: bounce 1.2s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* Input bar */
+  .input-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    padding: 16px 24px 28px;
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+  }
+
+  .input-inner {
+    width: 100%;
+    max-width: 672px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    transition: border-color 0.15s;
+  }
+
+  .input-inner:focus-within {
+    border-color: var(--accent-dim);
+  }
+
+  textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    resize: none;
+    line-height: 1.5;
+    max-height: 120px;
+    min-height: 24px;
+  }
+
+  textarea::placeholder { color: var(--text-muted); }
+
+  button.send {
+    background: var(--accent);
+    border: none;
+    color: #0d0f0e;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  button.send:hover { opacity: 0.85; transform: scale(1.03); }
+  button.send:disabled { opacity: 0.3; cursor: default; transform: none; }
+
+  button.send svg { width: 16px; height: 16px; }
+
+  /* Footer */
+  .powered {
+    position: fixed;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #3a4a3c;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 480px) {
+    header { padding: 32px 16px 20px; }
+    .suggestions, .chat-wrap { padding: 0 16px; }
+    .suggestions { padding-bottom: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="label">Interactive CV · Principal PM</span>
+  <h1>Ask <em>Jorge</em> anything.</h1>
+  <p class="subtitle">21 years in enterprise travel tech · Sabre · Loyalty · AI · SaaS<br>Ask about experience, background, skills, or how I work.</p>
+</header>
+
+<div class="suggestions">
+  <button class="chip" onclick="sendChip(this)">What did you build at Sabre?</button>
+  <button class="chip" onclick="sendChip(this)">Tell me about your AI experience</button>
+  <button class="chip" onclick="sendChip(this)">How do you work with engineering teams?</button>
+  <button class="chip" onclick="sendChip(this)">What's your biggest product win?</button>
+  <button class="chip" onclick="sendChip(this)">Are you open to contractor roles?</button>
+  <button class="chip" onclick="sendChip(this)">What industries have you worked in?</button>
+</div>
+
+<div class="chat-wrap">
+  <div class="messages" id="messages">
+    <div class="message bot">
+      <div class="avatar bot">JO</div>
+      <div class="bubble">Hey — I'm an AI version of Jorge. Ask me anything about his background, experience, or how he works. I'll answer based on his real CV.</div>
+    </div>
+  </div>
+</div>
+
+<div class="input-bar">
+  <div class="input-inner">
+    <textarea id="input" placeholder="Ask something about Jorge…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send" id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div class="powered">Powered by Claude · jorge.oyola@icloud.com</div>
+
+<script>
+const CV_CONTEXT = `
+Jorge Oyola — Principal Product Manager
+Location: Montevideo, Uruguay
+Contact: jorge.oyola@icloud.com | linkedin.com/in/jorge-oyolaa71316274
+
+SUMMARY:
+Jorge works on complex, data-intensive digital platforms. His background spans quality assurance, business analysis and product leadership — giving him a practical, end-to-end view of how ideas become reliable outcomes. He leads large-scale initiatives involving multiple cross-functional teams, translating complex business needs into clear product direction. He also serves as a bridge between product and commercial teams, participating directly in client-facing sales, pricing definition and contract negotiations.
+
+EXPERIENCE:
+
+Principal Product Manager – Loyalty Systems | Sabre Corporation | Nov 2023 – Feb 2026
+- Led product strategy for Sabre's Loyalty platform, supporting 9 airline clients with end-to-end frequent flyer program capabilities (tier models, earning logic, customer profile integration)
+- Defined infrastructure to integrate Loyalty across the PSS, connecting 23 internal and external systems
+- Drove 25% reduction in project delivery time through standardization and cross-team alignment
+- Oversaw partnership with LoyaltyPlus, coordinating integrations and delivery timelines
+- Owned roadmap prioritization and capacity planning using Jira, Rally and Salesforce
+- Initiated and defined requirements for an AI-driven automation initiative within Loyalty operations
+
+Senior Product Manager – Enterprise Digital Platform | Sabre Corporation | Aug 2022 – Nov 2023
+- Led migration of Community Portal URLs, modernizing Sabre's primary digital gateway
+- Proposed and scoped a full UX/UI redesign
+- Drove 20% increase in portal usage through direct client engagement
+
+Product Owner – Enterprise Communications Platform | Sabre Corporation | Sep 2012 – Aug 2022
+- Led product lifecycle of Sabre's traveler communication platform: 60,000+ travel agencies and 51 airlines worldwide
+- Directed migration from Sabre Virtually There to Sabre Traveler Communication — 30% operational efficiency improvement
+- Managed products influencing over $3M in annual revenue
+- Led pre-sales sessions for Sabre Custom Messaging, drove adoption across 36 airline clients
+- Governed delivery of hundreds of millions of email and SMS messages annually across 26 languages
+
+Business Analyst – Enterprise Communications Platform | Sabre Corporation | Sep 2009 – Sep 2012
+- Supported delivery across Americas, EMEA and APAC, 5 airline implementations per year
+- Gathered and documented business requirements, translated client needs into functional specs and test cases
+- Acted as liaison between clients, engineering and support teams
+
+Advanced Technical Support – Enterprise Applications | Sabre Corporation | Jul 2006 – Sep 2009
+- Provided second-level support across 19+ Sabre products
+- Escalation point for first-level teams; selected to support a major platform enhancement in Dallas
+
+Product Support Analyst | Sabre Corporation | Jan 2005 – Jul 2006
+- First-level support to travel agencies across North America; multilingual support in English and French
+
+EDUCATION:
+- Postgraduate Degree, Data Strategy & Business Analytics — Universitat Oberta de Catalunya (2025–2026)
+- Official Master's Degree in Project Management — Universidad Europea de Valencia (2022–2023)
+- Bachelor of Business Administration, Operations Research — Universidad Católica del Uruguay (2016–2020)
+
+CERTIFICATIONS & SKILLS:
+- CSPO – Certified Scrum Product Owner
+- AI for Product Management
+- EF SET Certificate (English proficiency)
+- Top skills: Revenue Optimization · Stakeholder Management · Cross-functional Team Leadership · Roadmap Prioritization · B2B SaaS · Airline Tech · Loyalty Systems · Traveler Communications · AI agents · RAG architecture
+
+LANGUAGES: Spanish (native), English (professional), French (working)
+
+OPEN TO: Remote roles, contractor/freelance engagements, B2B SaaS, travel tech, AI-adjacent PM or BA roles.
+`;
+
+const SYSTEM_PROMPT = `You are an AI assistant representing Jorge Oyola's professional profile. You answer questions about Jorge based solely on his CV and background provided below. 
+
+Rules:
+- Speak as if you are Jorge when it makes sense ("I built...", "My experience includes...") or refer to him in third person naturally
+- Be direct, concise, and professional — no filler
+- If something isn't covered in the CV, say so honestly
+- Highlight strengths naturally without overselling
+- Keep answers brief unless the question requires depth
+
+Jorge's CV and background:
+${CV_CONTEXT}`;
+
+let isLoading = false;
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function sendChip(btn) {
+  document.getElementById('input').value = btn.textContent;
+  sendMessage();
+}
+
+function appendMessage(role, text) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `avatar ${role === 'bot' ? 'bot' : 'user-av'}`;
+  avatar.textContent = role === 'bot' ? 'JO' : 'You';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = formatText(text);
+
+  if (role === 'user') {
+    div.appendChild(bubble);
+    div.appendChild(avatar);
+  } else {
+    div.appendChild(avatar);
+    div.appendChild(bubble);
+  }
+
+  msgs.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  return bubble;
+}
+
+function formatText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'message bot';
+  div.id = 'typing-indicator';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar bot';
+  avatar.textContent = 'JO';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = '<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+const conversationHistory = [];
+
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  appendMessage('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+
+  showTyping();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.content?.[0]?.text || 'Sorry, I could not generate a response.';
+
+    removeTyping();
+    appendMessage('bot', reply);
+    conversationHistory.push({ role: 'assistant', content: reply });
+
+  } catch (err) {
+    removeTyping();
+    appendMessage('bot', 'Something went wrong. Please try again.');
+  }
+
+  isLoading = false;
+  document.getElementById('sendBtn').disabled = false;
+  input.focus();
+}
+</script>
+</body>
+</html>
