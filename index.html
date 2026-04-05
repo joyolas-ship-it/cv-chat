@@ -285,10 +285,10 @@
   </div>
 </div>
 
-<div class="powered">Powered by Gemini · jorge.oyola@icloud.com</div>
+<div class="powered">Powered by Gemini · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bfd5d0cdd8da91d0c6d0d3deffd6dcd3d0cadb91dcd0d2">[email&#160;protected]</a></div>
 
-<script>
-const WORKER_URL = 'https://cv-chat-proxy.joyolamvduy.workers.dev';
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const WORKER_URL = 'https://cv-chat-proxy2.joyolamvduy.workers.dev';
 
 const SYSTEM = `You are an AI assistant representing Jorge Oyola's professional profile. Answer questions about Jorge based on his CV below. Be direct and concise — no filler. Speak naturally in first or third person. If something isn't in the CV, say so honestly.
 
@@ -409,16 +409,4 @@ async function sendMessage() {
     const reply = data.text || 'Sorry, something went wrong.';
     removeTyping();
     appendMessage('bot', reply);
-    history.push({ role: 'model', parts: [{ text: reply }] });
-
-  } catch(e) {
-    removeTyping();
-    appendMessage('bot', 'Something went wrong. Please try again.');
-  }
-
-  isLoading = false; document.getElementById('sendBtn').disabled = false;
-  input.focus();
-}
-</script>
-</body>
-</html>
+    history.push({ role: 'model', parts: [{ text: reply }] 
